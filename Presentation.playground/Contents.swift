@@ -295,15 +295,31 @@ func <*><T, V>(transform: (T -> V)?, input: T?) -> V? {
 
 // Currying is deprecated
 
-func extractFullUserName(firstName: String)(lastName: String) -> String {
+func curriedExtractFullUserName(firstName: String)(lastName: String) -> String {
     return "\(firstName) \(lastName)"
 }
+
+// Swift 3.0 version for currying
+
+func explicityRetunClosure(firstName: String) -> (String) -> String {
+    return { (lastName: String) -> String in
+        return "\(firstName) \(lastName)"
+    }
+}
+
+func extractFullUserName(firstName: String, lastName: String) -> String {
+    return "\(firstName) \(lastName)"
+}
+
+let fnIncludingFirstName = curriedExtractFullUserName("John")
+let extractedFullName = fnIncludingFirstName(lastName: "Doe")
 
 var fullName: String {
     let user = User()
     user.firstName = "John"
     user.lastName = "Doe"
-    let fullUserName = extractFullUserName <^> user.firstName <*> user.lastName
+    //    let fullUserName = curriedExtractFullUserName <^> user.firstName <*> user.lastName
+    let fullUserName = explicityRetunClosure <^> user.firstName <*> user.lastName
     return fullUserName ?? ""
 }
 
@@ -352,7 +368,7 @@ struct Lens<Whole, Part> {
 }
 
 let prodProducerLens: Lens<Product, Producer> = Lens(get: { $0.producer},
-                                                               set: { Product(name: $1.name, price: $1.price, quantity: $1.quantity, producer: $0)})
+                                                     set: { Product(name: $1.name, price: $1.price, quantity: $1.quantity, producer: $0)})
 
 let producer = Producer(name: "ABC", address: "Toronto, Ontario, Canada")
 
